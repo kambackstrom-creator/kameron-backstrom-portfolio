@@ -31,6 +31,15 @@
     .nav-btn { padding: 15px 14px; font-size: 12px; font-weight: 500; color: var(--text-faint); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Inter', sans-serif; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
     .nav-btn.active, .nav-btn:hover { color: var(--black); border-bottom-color: var(--red); }
 
+    /* HAMBURGER MENU */
+    .nav-header { display: none; justify-content: space-between; align-items: center; width: 100%; padding: 14px 4px; }
+    .nav-brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--black); }
+    .hamburger { display: none; flex-direction: column; justify-content: space-between; width: 24px; height: 18px; background: none; border: none; cursor: pointer; padding: 0; }
+    .hamburger span { display: block; width: 100%; height: 2px; background: var(--black); transition: transform 0.3s, opacity 0.3s; transform-origin: center; }
+    .hamburger.open span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
     .section { display: none; padding: 52px; }
     .section.active { display: block; }
     .sec-label { font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 6px; }
@@ -188,13 +197,47 @@
     @media (max-width: 680px) {
       .hero { padding: 48px 24px 44px; }
       .hero-name { font-size: 44px; }
-      .section { padding: 36px 24px; }
-      .about-grid { grid-template-columns: 1fr; }
+      .hero-statement { font-size: 20px; }
+      .section { padding: 36px 20px; }
+      .sec-heading { font-size: 26px; margin-bottom: 28px; }
+      .about-grid { grid-template-columns: 1fr; gap: 28px; }
       .case-two-col, .campaign-grid { grid-template-columns: 1fr; }
       .inv-grid { grid-template-columns: 1fr; }
       .film-grid { grid-template-columns: 1fr 1fr; }
       .stat-row { grid-template-columns: 1fr 1fr; }
       .contact-items { flex-direction: column; gap: 24px; }
+      .contact-heading { font-size: 40px; margin-bottom: 36px; }
+
+      /* Hamburger nav on mobile */
+      .nav { flex-direction: column; padding: 0; align-items: stretch; }
+      .nav-header { display: flex; padding: 14px 20px; }
+      .hamburger { display: flex; }
+      .nav-menu { display: none; flex-direction: column; width: 100%; border-top: 1px solid var(--border); }
+      .nav-menu.open { display: flex; }
+      .nav-btn { width: 100%; text-align: left; padding: 14px 20px; border-bottom: 1px solid var(--border); border-left: 3px solid transparent; }
+      .nav-btn:last-child { border-bottom: none; }
+      .nav-btn.active, .nav-btn:hover { border-bottom-color: var(--border); border-left-color: var(--red); background: var(--off-white); }
+      .nav-btn.active:last-child, .nav-btn:hover:last-child { border-bottom-color: transparent; }
+
+      /* Timeline adjustments */
+      .timeline-item { gap: 16px; margin-bottom: 32px; }
+      .timeline-left { min-width: 70px; }
+      .timeline-dates { font-size: 10px; }
+      .timeline-co { font-size: 19px; }
+
+      /* Case studies */
+      .case-nav { gap: 6px; }
+      .case-btn { padding: 7px 14px; font-size: 11px; }
+      .case-header-title { font-size: 22px; }
+
+      /* Sidebar cards */
+      .sidebar-block { padding: 16px; }
+    }
+    @media (max-width: 420px) {
+      .hero-name { font-size: 36px; }
+      .hero-statement { font-size: 18px; }
+      .stat-row { grid-template-columns: 1fr; }
+      .film-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -222,12 +265,22 @@
 
   <!-- NAV -->
   <nav class="nav">
-    <button class="nav-btn active" onclick="showSection('about',this)">About</button>
-    <button class="nav-btn" onclick="showSection('career',this)">Career</button>
-    <button class="nav-btn" onclick="showSection('work',this)">Work Highlights</button>
-    <button class="nav-btn" onclick="showSection('involvement',this)">Industry Involvement</button>
-    <button class="nav-btn" onclick="showSection('skills',this)">Skills</button>
-    <button class="nav-btn" onclick="showSection('contact',this)">Contact</button>
+    <div class="nav-header">
+      <div class="nav-brand">Kameron Backstrom</div>
+      <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div class="nav-menu" id="navMenu">
+      <button class="nav-btn active" onclick="showSection('about',this)">About</button>
+      <button class="nav-btn" onclick="showSection('career',this)">Career</button>
+      <button class="nav-btn" onclick="showSection('work',this)">Work Highlights</button>
+      <button class="nav-btn" onclick="showSection('involvement',this)">Industry Involvement</button>
+      <button class="nav-btn" onclick="showSection('skills',this)">Skills</button>
+      <button class="nav-btn" onclick="showSection('contact',this)">Contact</button>
+    </div>
   </nav>
 
   <!-- ABOUT -->
@@ -672,11 +725,20 @@
 </div>
 </div>
 <script>
+  function toggleMenu() {
+    document.getElementById('navMenu').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('open');
+  }
   function showSection(id, btn) {
     document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
     document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
     document.getElementById(id).classList.add('active');
     btn.classList.add('active');
+    // Close mobile menu after selection
+    if (window.innerWidth <= 680) {
+      document.getElementById('navMenu').classList.remove('open');
+      document.getElementById('hamburger').classList.remove('open');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function showCase(id, btn) {
